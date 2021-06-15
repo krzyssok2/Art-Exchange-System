@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31321.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Art Exchange Token System", "Art Exchange Token System\Art Exchange Token System.csproj", "{6324C475-E797-481C-8BE1-7FF05ACADFD1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6324C475-E797-481C-8BE1-7FF05ACADFD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6324C475-E797-481C-8BE1-7FF05ACADFD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6324C475-E797-481C-8BE1-7FF05ACADFD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6324C475-E797-481C-8BE1-7FF05ACADFD1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ECB877F1-FB6A-476D-91D3-9BA8DA3438E9}
+	EndGlobalSection
+EndGlobal
