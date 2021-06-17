@@ -1,6 +1,7 @@
 ﻿using Art_Exchange_Token_System.Models;
 using Art_Exchange_Token_System.Models.RequestModels;
-using Art_Exchange_Token_System.Services;
+using LOGIC.Interfaces;
+using LOGIC.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -18,10 +19,10 @@ namespace Art_Exchange_Token_System.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AdminController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        public AdminController(UserManager<IdentityUser> identityService)
+        private readonly IAdminService _adminService;
+        public AdminController(IAdminService authService)
         {
-            _userManager = identityService;
+            _adminService = authService;
         }
 
         [HttpPost("GrantRole")]

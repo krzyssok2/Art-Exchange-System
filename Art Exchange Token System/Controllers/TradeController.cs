@@ -1,5 +1,5 @@
-﻿using Art_Exchange_Token_System.Models;
-using Art_Exchange_Token_System.Services;
+﻿using LOGIC.Interfaces;
+using LOGIC.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +17,9 @@ namespace Art_Exchange_Token_System.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TradeController : Controller
     {
-        private readonly ArtExchangeContext _context;
-        private readonly TradeService _tradeService;
-        public TradeController(ArtExchangeContext artExchangeContext, TradeService tradeService)
+        private readonly ITradeService _tradeService;
+        public TradeController(ITradeService tradeService)
         {
-            _context = artExchangeContext;
             _tradeService = tradeService;
         }
 

@@ -2,6 +2,8 @@
 using Art_Exchange_Token_System.Models;
 using Art_Exchange_Token_System.Models.RequestModels;
 using Art_Exchange_Token_System.Services;
+using LOGIC.Interfaces;
+using LOGIC.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,13 +21,9 @@ namespace Art_Exchange_Token_System.Controllers
     [Route("api/[controller]")]
     public class ArtController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly ArtExchangeContext _context;
-        private readonly ArtService _artService;
-        public ArtController(UserManager<IdentityUser> identityService, ArtExchangeContext artExchangeContext, ArtService artService)
+        private readonly IArtService _artService;
+        public ArtController(IArtService artService)
         {
-            _userManager = identityService;
-            _context = artExchangeContext;
             _artService = artService;
         }
 
