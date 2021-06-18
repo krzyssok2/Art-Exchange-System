@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DATA.Entities
+﻿namespace DATA.Entities
 {
     public class ArtCategory
     {

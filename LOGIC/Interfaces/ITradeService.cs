@@ -1,10 +1,5 @@
 ﻿using LOGIC.Models;
 using LOGIC.Models.ErrorHandlingModels;
-using LOGIC.Models.TransactionModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static DATA.Enums.TradeTransactionStatusEnum;
 

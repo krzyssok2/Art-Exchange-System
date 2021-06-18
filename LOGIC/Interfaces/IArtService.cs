@@ -1,11 +1,6 @@
 ﻿using LOGIC.Models;
 using LOGIC.Models.ErrorHandlingModels;
-using LOGIC.Models.TransactionModels;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LOGIC.Interfaces

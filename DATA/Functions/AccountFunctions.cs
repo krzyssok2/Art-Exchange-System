@@ -1,15 +1,10 @@
 ﻿using DATA.AppConfiguration;
 using DATA.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using DATA.Interfaces;
 
 namespace DATA.Functions
@@ -82,7 +77,7 @@ namespace DATA.Functions
 
         public async Task<IdentityUser> GetUserByEmail(string email)
         {
-            return _context.Users.First(i => i.Email == email);
+            return _context.Users.FirstOrDefault(i => i.Email == email);
         }
 
         public async Task AddRoleToUser(IdentityUser identity, string role)
@@ -96,7 +91,7 @@ namespace DATA.Functions
             _context.UserData.Add(new UserData
             {
                 DisplayName = userName,
-                IdentityUser = _context.Users.First(i => i.Email == email),
+                IdentityUser = _context.Users.FirstOrDefault(i => i.Email == email),
             });
 
             _context.SaveChanges();
@@ -105,7 +100,7 @@ namespace DATA.Functions
         public async Task<UserData> GetUserDataByUser(IdentityUser identityUser)
         {
             var userdata = _context.UserData
-                .First(i => i.IdentityUser.Id == identityUser.Id);
+                .FirstOrDefault(i => i.IdentityUser.Id == identityUser.Id);
 
             return userdata;
         }
@@ -114,12 +109,12 @@ namespace DATA.Functions
         {
             return _context.UserData
                 .Include(i => i.IdentityUser)
-                .First(i => i.DisplayName == userName);
+                .FirstOrDefault(i => i.DisplayName == userName);
         }
 
         public UserData GetUserDataByEmail(string email)
         {
-            return _context.UserData.First(i => i.IdentityUser.Email == email);
+            return _context.UserData.FirstOrDefault(i => i.IdentityUser.Email == email);
         }
     }
 }

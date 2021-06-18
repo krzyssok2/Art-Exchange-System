@@ -1,13 +1,12 @@
 ﻿using DATA.AppConfiguration;
 using DATA.Entities;
-using DATA.Functions;
 using DATA.Interfaces;
 using LOGIC.Interfaces;
 using LOGIC.Models;
+using LOGIC.Models.ErrorHandlingModels;
 using LOGIC.Models.TransactionModels;
 using LOGIC.Options;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -31,32 +30,58 @@ namespace LOGIC.Services
             _tokenValidationParameters = tokenValidationParameters;
             _accountFunctions = accountFunctions;
         }
-        public async Task<AuthenticationResult> LogIn(string userName, string password)
+        public async Task<ServiceResponseModel<AuthSuccessResponse>> LogIn(string userName, string password)
         {
             var user = await _accountFunctions.GetUserByUserNameAsync(userName);
 
-            if (user == null)
+            if (user == null) return new ServiceResponseModel<AuthSuccessResponse>
             {
-                return new AuthenticationResult(Errors.UserDoesntExist);
-            }
+                Success = false,
+                Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.UserDoesntExist
+                        }
+                    }
+            };
 
             var userHasValidPassword = await _accountFunctions.IsPasswordCorrect(user, password);
 
-            if (!userHasValidPassword)
+            if (!userHasValidPassword) return new ServiceResponseModel<AuthSuccessResponse>
             {
-                return new AuthenticationResult(Errors.PassNickWrong);
-            }
-
+                Success = false,
+                Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.PassNickWrong
+                        }
+                    }
+            };
             return await GenerateAuthenticationResultForUserAsync(user);
         }
 
-        public async Task<AuthenticationResult> RefreshTokenAsync(string token, string refreshToken)
+        public async Task<ServiceResponseModel<AuthSuccessResponse>> RefreshTokenAsync(string token, string refreshToken)
         {
             var validatedToken = GetPrincipalFromToken(token);
 
             if (validatedToken == null)
             {
-                return new AuthenticationResult(Errors.InvalidToken);
+                return new ServiceResponseModel<AuthSuccessResponse>
+                {
+                    Success = false,
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.InvalidToken
+                        }
+                    }
+                };
             }
 
             var jti = validatedToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
@@ -65,27 +90,82 @@ namespace LOGIC.Services
 
             if (storedRefreshToken == null)
             {
-                return new AuthenticationResult(Errors.TokenDoesntExist);
+                return new ServiceResponseModel<AuthSuccessResponse>
+                {
+                    Success = false,
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.TokenDoesntExist
+                        }
+                    }
+                };
             }
 
             if (DateTime.UtcNow > storedRefreshToken.ExpiryDate)
             {
-                return new AuthenticationResult(Errors.RefreshTokenExpired);
+                return new ServiceResponseModel<AuthSuccessResponse>
+                {
+                    Success = false,
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.RefreshTokenExpired
+                        }
+                    }
+                };
             }
 
             if (storedRefreshToken.Invalidated)
             {
-                return new AuthenticationResult(Errors.RefreshTokenInvalid);
+                return new ServiceResponseModel<AuthSuccessResponse>
+                {
+                    Success = false,
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.RefreshTokenInvalid
+                        }
+                    }
+                };
             }
 
             if (storedRefreshToken.Used)
             {
-                return new AuthenticationResult(Errors.RefreshTokenUsed);
+                return new ServiceResponseModel<AuthSuccessResponse>
+                {
+                    Success = false,
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.RefreshTokenUsed
+                        }
+                    }
+                };
             }
 
             if (storedRefreshToken.JwtId != jti)
             {
-                return new AuthenticationResult(Errors.RefreshTokenDoesntMatchJwT);
+                return new ServiceResponseModel<AuthSuccessResponse>
+                {
+                    Success = false,
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.RefreshTokenDoesntMatchJwT
+                        }
+                    }
+                };
             }
 
             storedRefreshToken.Used = true;
@@ -94,6 +174,30 @@ namespace LOGIC.Services
 
             var user = await _accountFunctions.GetIdentityUserByTokenClaim(validatedToken);
             return await GenerateAuthenticationResultForUserAsync(user);
+        }
+        public async Task<CreateUserTransactionModel> RegisterAsync(string userName, string gmail, string password)
+        {
+            var result = await _accountFunctions.CreateUser(userName, gmail, password);
+
+            if (!result.Succeeded)
+            {
+                return new CreateUserTransactionModel
+                {
+                    Success = false,
+                    Errors = result.Errors.ToList(),
+                };
+            }
+
+            var identity = await _accountFunctions.GetUserByEmail(gmail);
+
+            await _accountFunctions.AddRoleToUser(identity, "User");
+
+            await _accountFunctions.CreateUserDataToUser(userName, gmail);
+
+            return new CreateUserTransactionModel
+            {
+                Success = true
+            };
         }
 
         private ClaimsPrincipal GetPrincipalFromToken(string token)
@@ -125,7 +229,7 @@ namespace LOGIC.Services
                        StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private async Task<AuthenticationResult> GenerateAuthenticationResultForUserAsync(IdentityUser user)
+        private async Task<ServiceResponseModel<AuthSuccessResponse>> GenerateAuthenticationResultForUserAsync(IdentityUser user)
         {
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
@@ -156,37 +260,17 @@ namespace LOGIC.Services
             };
             _accountFunctions.AddRefreshToken(refreshToken);
 
-            return new AuthenticationResult()
+            return new ServiceResponseModel<AuthSuccessResponse>
             {
                 Success = true,
-                Token = tokenHandler.WriteToken(token),
-                RefreshToken = refreshToken.Token
-            };
-        }
-
-        public async Task<CreateUserTransactionModel> RegisterAsync(string userName, string gmail, string password)
-        {
-            var result = await _accountFunctions.CreateUser(userName, gmail, password);            
-
-            if (!result.Succeeded)
-            {
-                return new CreateUserTransactionModel
+                ResponseData = new AuthSuccessResponse
                 {
-                    Success = false,
-                    Errors = result.Errors.ToList(),
-                };
-            }
-
-            var identity = await _accountFunctions.GetUserByEmail(gmail);            
-
-            await _accountFunctions.AddRoleToUser(identity, "User");
-
-            await _accountFunctions.CreateUserDataToUser(userName, gmail);
-
-            return new CreateUserTransactionModel
-            {
-                Success = true
+                    Token = tokenHandler.WriteToken(token),
+                    RefreshToken = refreshToken.Token
+                }
             };
+
         }
+
     }
 }

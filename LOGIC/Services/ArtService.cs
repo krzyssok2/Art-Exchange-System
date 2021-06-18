@@ -1,10 +1,8 @@
 ﻿using DATA.Entities;
-using DATA.Functions;
 using DATA.Interfaces;
 using LOGIC.Interfaces;
 using LOGIC.Models;
 using LOGIC.Models.ErrorHandlingModels;
-using LOGIC.Models.TransactionModels;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -160,6 +158,21 @@ namespace LOGIC.Services
 
         public async Task<ServiceResponseModel<ArtListModel>> GetOwnedArt(string username)
         {
+            var userData = _accountFunctions.GetUserDataByUserName(username);
+
+            if (userData == null) return new ServiceResponseModel<ArtListModel>
+            {
+                Success = false,
+                Errors = new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message=ErrorEnum.UserDoesntExist
+                    }
+                }
+            };
+
             var art = _artFunctions.GetOwnedArtByUserName(username);
 
             var owned = art.Select(i => new ArtDataModel
@@ -189,6 +202,21 @@ namespace LOGIC.Services
 
         public async Task<ServiceResponseModel<ArtListModel>> GetCreatedArt(string username)
         {
+            var userData = _accountFunctions.GetUserDataByUserName(username);
+
+            if (userData == null) return new ServiceResponseModel<ArtListModel>
+            {
+                Success = false,
+                Errors = new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message=ErrorEnum.UserDoesntExist
+                    }
+                }
+            };
+
             var art = _artFunctions.GetCreatedArtByUserName(username);
 
             var owned = art.Select(i => new ArtDataModel
@@ -224,7 +252,7 @@ namespace LOGIC.Services
             }
         }
 
-        private void SaveImageToDisk(string path, IFormFile file)
+        private static void SaveImageToDisk(string path, IFormFile file)
         {
             using (FileStream fileStream = File.Create(path))
             {

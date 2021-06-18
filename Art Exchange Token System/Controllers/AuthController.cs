@@ -1,11 +1,7 @@
-﻿using Art_Exchange_Token_System.Models;
-using LOGIC.Interfaces;
+﻿using LOGIC.Interfaces;
 using LOGIC.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Art_Exchange_Token_System.Controllers
@@ -29,20 +25,11 @@ namespace Art_Exchange_Token_System.Controllers
         [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> LoginAsync(AuthAccount request)
         {
-            var authResponse = await _authService.LogIn(request.UserName, request.Password);
+            var result = await _authService.LogIn(request.UserName, request.Password);
 
-            if (!authResponse.Success)
-            {
-                return Unauthorized(new AuthFailedResponse
-                {
-                    Error = authResponse.Error
-                });
-            }
-            return Ok(new AuthSuccessResponse
-            {
-                Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken
-            });
+            if (!result.Success) return BadRequest(result.Errors);
+
+            return Ok(result.ResponseData);
         }
         /// <summary>
         /// Refresh user token
@@ -51,21 +38,11 @@ namespace Art_Exchange_Token_System.Controllers
         [HttpPost("Refresh")]
         public async Task<ActionResult> RefreshAsync(RefreshTokenRequest request)
         {
-            var authResponse = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
+            var result = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);
 
-            if (!authResponse.Success)
-            {
-                return BadRequest(new AuthFailedResponse
-                {
-                    Error = authResponse.Error
-                });
-            }
+            if (!result.Success) return BadRequest(result.Errors);
 
-            return Ok(new AuthSuccessResponse
-            {
-                Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken
-            });
+            return Ok(result.ResponseData);
         }
         /// <summary>
         /// Register user

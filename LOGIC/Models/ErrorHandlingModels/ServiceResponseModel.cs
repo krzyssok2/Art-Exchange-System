@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LOGIC.Models.ErrorHandlingModels
 {
@@ -32,6 +28,15 @@ namespace LOGIC.Models.ErrorHandlingModels
         FailedToCreate=2,
         ArtNotOwned=3,
         NoImageProvided=4,
-        CategoryDoesntExist=5
+        CategoryDoesntExist=5,
+        InvalidToken=6,
+        TokenExpired=7,
+        TokenDoesntExist=8,
+        RefreshTokenExpired=9,
+        RefreshTokenInvalid=10,
+        RefreshTokenUsed=11,
+        RefreshTokenDoesntMatchJwT=12,
+        UserDoesntExist=13,
+        PassNickWrong=14,
     }
 }
