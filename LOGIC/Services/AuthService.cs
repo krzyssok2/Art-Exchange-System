@@ -1,6 +1,7 @@
 ﻿using DATA.AppConfiguration;
 using DATA.Entities;
 using DATA.Functions;
+using DATA.Interfaces;
 using LOGIC.Interfaces;
 using LOGIC.Models;
 using LOGIC.Models.TransactionModels;
@@ -22,9 +23,9 @@ namespace LOGIC.Services
     {
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
-        private readonly DATA.Functions.AccountFunctions _accountFunctions;
+        private readonly IAccountFunctions _accountFunctions;
         public AuthService(JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, ArtExchangeContext artExchangeContext, UserManager<IdentityUser> userManager,
-            AccountFunctions accountFunctions)
+            IAccountFunctions accountFunctions)
         {
             _jwtSettings = jwtSettings;
             _tokenValidationParameters = tokenValidationParameters;

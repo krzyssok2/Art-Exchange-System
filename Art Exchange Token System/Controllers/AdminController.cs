@@ -29,60 +29,25 @@ namespace Art_Exchange_Token_System.Controllers
         [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> GrantRole(GrantRoleModel request)
         {
-            var user = _userManager.FindByEmailAsync(request.Mail);
+            await _adminService.GrantRole(request.Mail, request.Role);
 
-            var roleResponse = await _userManager.AddToRoleAsync(user.Result, request.Role);
-
-            if (!roleResponse.Succeeded)
-            {
-                return BadRequest(new 
-                {
-                    Errors = roleResponse.Errors
-                });
-            }
-            return Ok(user.Result);
+            return Ok();
         }
 
         [HttpGet("UserRoles/{mail}")]
         [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
-        public async Task<ActionResult> GetUserRoles(string mail)
+        public async Task<ActionResult> GetUserRoles(string email)
         {
-            var user = await _userManager.FindByEmailAsync(mail);
+            var result = await _adminService.GetUserRoles(email);
 
-            if (user == null) return NotFound();
-
-
-            var roleResponse = (await _userManager.GetRolesAsync(user)).ToList();
-
-            return Ok(new UserRolesModel
-            {
-                UserMail = mail,
-                Roles = roleResponse
-            });        
+            return Ok(result);
         }
 
         [HttpPatch("RevokeRole")]
         [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> RevokeRole(RevokeRoleModel request)
         {
-            var user = await _userManager.FindByEmailAsync(request.Mail);
-
-            var revokeRequest = await _userManager.RemoveFromRoleAsync(user, request.Role);
-
-            if (!revokeRequest.Succeeded)
-            {                
-                return BadRequest(new
-                {
-                    Errors = revokeRequest.Errors
-                });
-            }
-
-            var roleResponse = (await _userManager.GetRolesAsync(user)).ToList();
-            return Ok(new UserRolesModel
-            {
-                UserMail = request.Mail,
-                Roles = roleResponse
-            });
+            await _adminService.RevokeRole(request.Mail, request.Role);
         }
     }
 }

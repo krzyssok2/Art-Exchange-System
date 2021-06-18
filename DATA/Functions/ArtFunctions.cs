@@ -1,5 +1,6 @@
 ﻿using DATA.AppConfiguration;
 using DATA.Entities;
+using DATA.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DATA.Functions
 {
-    public class ArtFunctions
+    public class ArtFunctions : IArtFunctions
     {
         private readonly ArtExchangeContext _context;
         private readonly UserManager<IdentityUser> _userManager;

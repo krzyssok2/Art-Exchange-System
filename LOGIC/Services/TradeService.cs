@@ -15,14 +15,15 @@ using DATA.Enums;
 using DATA.Functions;
 using LOGIC.Models.TransactionModels;
 using static DATA.Enums.TradeTransactionStatusEnum;
+using DATA.Interfaces;
 
 namespace LOGIC.Services
 {
     public class TradeService : ITradeService
     {
-        public AccountFunctions _accountFunctions;
-        public TradeFunctions _tradeFunctions;
-        public TradeService(AccountFunctions accountFuntions, TradeFunctions tradeFunctions)
+        public IAccountFunctions _accountFunctions;
+        public ITradeFunctions _tradeFunctions;
+        public TradeService(IAccountFunctions accountFuntions, ITradeFunctions tradeFunctions)
         {
             _accountFunctions = accountFuntions;
             _tradeFunctions = tradeFunctions;

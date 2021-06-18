@@ -17,6 +17,7 @@ using LOGIC.Services;
 using DATA.AppConfiguration;
 using Microsoft.EntityFrameworkCore;
 using DATA.Functions;
+using DATA.Interfaces;
 
 namespace Art_Exchange_Token_System
 {
@@ -101,9 +102,11 @@ namespace Art_Exchange_Token_System
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ITradeService, TradeService>();
             services.AddScoped<IAdminService, AdminService>();
-            services.AddTransient<AccountFunctions>();
-            services.AddTransient<ArtFunctions>();
-            services.AddTransient<TradeFunctions>();
+
+            services.AddScoped<IAccountFunctions,AccountFunctions>();
+            services.AddScoped<IArtFunctions,ArtFunctions>();
+            services.AddScoped<ITradeFunctions,TradeFunctions>();
+            services.AddScoped<IAdminFunctions, AdminFunctions>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

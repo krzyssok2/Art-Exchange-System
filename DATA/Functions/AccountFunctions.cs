@@ -10,9 +10,11 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using DATA.Interfaces;
+
 namespace DATA.Functions
 {
-    public class AccountFunctions
+    public class AccountFunctions: IAccountFunctions
     {
         private readonly ArtExchangeContext _context;
         private readonly UserManager<IdentityUser> _userManager;

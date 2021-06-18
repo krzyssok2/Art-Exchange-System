@@ -1,5 +1,6 @@
 ﻿using DATA.AppConfiguration;
 using DATA.Entities;
+using DATA.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,7 +12,7 @@ using static DATA.Enums.TradeTransactionStatusEnum;
 
 namespace DATA.Functions
 {
-    public class TradeFunctions
+    public class TradeFunctions :ITradeFunctions
     {
         private readonly ArtExchangeContext _context;
         private readonly UserManager<IdentityUser> _userManager;

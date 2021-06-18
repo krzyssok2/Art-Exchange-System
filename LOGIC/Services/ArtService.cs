@@ -1,5 +1,6 @@
 ﻿using DATA.Entities;
 using DATA.Functions;
+using DATA.Interfaces;
 using LOGIC.Interfaces;
 using LOGIC.Models;
 using LOGIC.Models.TransactionModels;
@@ -14,9 +15,9 @@ namespace LOGIC.Services
 {
     public class ArtService: IArtService
     {
-        public AccountFunctions _accountFunctions;
-        public ArtFunctions _artFunctions;
-        public ArtService(AccountFunctions accountFunctions, ArtFunctions artFunctions)
+        public IAccountFunctions _accountFunctions;
+        public IArtFunctions _artFunctions;
+        public ArtService(IAccountFunctions accountFunctions, IArtFunctions artFunctions)
         {
             _accountFunctions = accountFunctions;
             _artFunctions = artFunctions;
