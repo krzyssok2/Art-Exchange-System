@@ -9,9 +9,9 @@ namespace DATA.AppConfiguration
         public ArtExchangeContext CreateDbContext(string[] args)
         {
             // Get our connection string - VIA AppConfiguration Class
-            AppConfiguration Settings = new AppConfiguration();
+            AppConfiguration Settings = new();
             // Init A new options builder so we can tell it what information it must use when connecting the the db
-            DbContextOptionsBuilder<ArtExchangeContext> OptionsBuilder = new DbContextOptionsBuilder<ArtExchangeContext>();
+            DbContextOptionsBuilder<ArtExchangeContext> OptionsBuilder = new();
             // Tell the options builder what type of database its connecting to and which connection string it must use
             OptionsBuilder.UseSqlServer(Settings.SqlConnectionString);
             // We return a new instance of the database context with the all required db connection info

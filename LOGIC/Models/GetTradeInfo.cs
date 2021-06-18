@@ -12,7 +12,7 @@ namespace LOGIC.Models
     public class UserTradeOfferModel
     {
         public string Username { get; set; }
-        public TradeStatus tradeStatus { get; set; }
+        public TradeStatus TradeSatus { get; set; }
         public List<ArtInfoModel> OfferedArt { get; set; }
     }
 

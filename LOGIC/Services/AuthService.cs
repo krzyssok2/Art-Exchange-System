@@ -23,8 +23,7 @@ namespace LOGIC.Services
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IAccountFunctions _accountFunctions;
-        public AuthService(JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, ArtExchangeContext artExchangeContext, UserManager<IdentityUser> userManager,
-            IAccountFunctions accountFunctions)
+        public AuthService(JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, IAccountFunctions accountFunctions)
         {
             _jwtSettings = jwtSettings;
             _tokenValidationParameters = tokenValidationParameters;
@@ -170,7 +169,7 @@ namespace LOGIC.Services
 
             storedRefreshToken.Used = true;
 
-            _accountFunctions.ModifyRefreshToken(storedRefreshToken);
+            await _accountFunctions.ModifyRefreshToken(storedRefreshToken);
 
             var user = await _accountFunctions.GetIdentityUserByTokenClaim(validatedToken);
             return await GenerateAuthenticationResultForUserAsync(user);
@@ -222,7 +221,7 @@ namespace LOGIC.Services
             }
         }
 
-        private bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
+        private static bool IsJwtWithValidSecurityAlgorithm(SecurityToken validatedToken)
         {
             return (validatedToken is JwtSecurityToken jwtSecurityToken) &&
                    jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512,
@@ -258,7 +257,7 @@ namespace LOGIC.Services
                 CreationDate = DateTime.UtcNow,
                 ExpiryDate = DateTime.UtcNow.AddMonths(6)
             };
-            _accountFunctions.AddRefreshToken(refreshToken);
+            await _accountFunctions.AddRefreshToken(refreshToken);
 
             return new ServiceResponseModel<AuthSuccessResponse>
             {

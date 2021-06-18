@@ -149,7 +149,7 @@ namespace LOGIC.Services
                 UserTrades = trade.UserOffers.Select(i => new UserTradeOfferModel
                 {
                     Username = i.User.DisplayName,
-                    tradeStatus = i.TradeStatus,
+                    TradeSatus = i.TradeStatus,
                     OfferedArt = i.OferredArtDatas.Select(j => new ArtInfoModel
                     {
                         Name = j.Name,
@@ -267,7 +267,7 @@ namespace LOGIC.Services
                     UserTrades = trade.UserOffers.Select(i => new UserTradeOfferModel
                     {
                         Username = i.User.DisplayName,
-                        tradeStatus = i.TradeStatus,
+                        TradeSatus = i.TradeStatus,
                         OfferedArt = i.OferredArtDatas.Select(j => new ArtInfoModel
                         {
                             Name = j.Name,

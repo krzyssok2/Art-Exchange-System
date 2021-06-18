@@ -11,8 +11,8 @@ namespace DATA.Interfaces
         public Task<bool> IsPasswordCorrect(IdentityUser user, string password);
         public Task RegisterUser(string userName, string gmail, string password);
         public Task<RefreshToken> GetToken(string refreshToken);
-        public void ModifyRefreshToken(RefreshToken refreshToken);
-        public void AddRefreshToken(RefreshToken refreshToken);
+        public Task ModifyRefreshToken(RefreshToken refreshToken);
+        public Task AddRefreshToken(RefreshToken refreshToken);
         public Task<IdentityUser> GetIdentityUserByTokenClaim(ClaimsPrincipal validatedToken);
         public Task<IdentityResult> CreateUser(string userName, string email, string password);
         public Task<IdentityUser> GetUserByEmail(string email);

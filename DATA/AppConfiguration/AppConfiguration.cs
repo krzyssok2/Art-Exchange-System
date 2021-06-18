@@ -8,7 +8,7 @@ namespace DATA.AppConfiguration
         //CONSTRUCTOR
         public AppConfiguration()
         {
-            ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            ConfigurationBuilder configurationBuilder = new();
 
             string path = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
 

@@ -12,11 +12,9 @@ namespace DATA.Functions
     public class TradeFunctions :ITradeFunctions
     {
         private readonly ArtExchangeContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
         public TradeFunctions(ArtExchangeContext artExchangeContext, UserManager<IdentityUser> userManager)
         {
             _context = artExchangeContext;
-            _userManager = userManager;
         }
 
         public UserData GetUserDataDetailedArtOffers(string email)

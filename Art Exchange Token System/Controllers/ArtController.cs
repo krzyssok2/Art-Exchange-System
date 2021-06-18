@@ -70,6 +70,7 @@ namespace Art_Exchange_Token_System.Controllers
         }
 
         [HttpGet("owned/{username}")]
+        [ProducesResponseType(typeof(ArtListModel), 200)]
         public async Task<ActionResult<ArtListModel>> GetOwnedArt(string username)
         {
             var result = await _artService.GetOwnedArt(username);
@@ -80,6 +81,7 @@ namespace Art_Exchange_Token_System.Controllers
         }
 
         [HttpGet("created/{username}")]
+        [ProducesResponseType(typeof(ArtListModel), 200)]
         public async Task<ActionResult<ArtListModel>> GetCreatedArt(string username)
         {
             var result = await _artService.GetCreatedArt(username);

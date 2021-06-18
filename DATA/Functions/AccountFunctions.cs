@@ -33,7 +33,7 @@ namespace DATA.Functions
 
         public async Task RegisterUser(string userName, string gmail, string password)
         {
-            var result = await _userManager.CreateAsync(new IdentityUser
+            await _userManager.CreateAsync(new IdentityUser
             {
                 UserName = userName,
                 Email = gmail,
@@ -46,16 +46,16 @@ namespace DATA.Functions
             return answerToken;
         }
 
-        public void ModifyRefreshToken(RefreshToken refreshToken)
+        public async Task ModifyRefreshToken(RefreshToken refreshToken)
         {
             _context.RefreshTokens.Update(refreshToken);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public void AddRefreshToken(RefreshToken refreshToken)
+        public async Task AddRefreshToken(RefreshToken refreshToken)
         {
             _context.RefreshTokens.Add(refreshToken);
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IdentityUser> GetIdentityUserByTokenClaim(ClaimsPrincipal validatedToken)
@@ -94,7 +94,7 @@ namespace DATA.Functions
                 IdentityUser = _context.Users.FirstOrDefault(i => i.Email == email),
             });
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<UserData> GetUserDataByUser(IdentityUser identityUser)

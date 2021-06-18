@@ -22,6 +22,7 @@ namespace Art_Exchange_Token_System.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(AllOnGoingTradesModel), 200)]
         public async Task<ActionResult<AllOnGoingTradesModel>> GetAllUserTrades()
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
@@ -32,7 +33,8 @@ namespace Art_Exchange_Token_System.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateTrade(TradeCreationModel tradeCreationModel)
+        [ProducesResponseType(typeof(GetTradeInfoModel), 200)]
+        public async Task<ActionResult<GetTradeInfoModel>> CreateTrade(TradeCreationModel tradeCreationModel)
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
 
@@ -44,6 +46,7 @@ namespace Art_Exchange_Token_System.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult<GetTradeInfoModel>> GetTrade(long id)
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
@@ -56,7 +59,7 @@ namespace Art_Exchange_Token_System.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<GetTradeInfoModel>> DeleteTrade(long id)
+        public async Task<ActionResult> DeleteTrade(long id)
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
 

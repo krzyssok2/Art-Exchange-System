@@ -23,7 +23,7 @@ namespace Art_Exchange_Token_System.Controllers
         /// <response code="400">Wasn't able to log in</response>   
         [HttpPost("Login")]
         [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
-        public async Task<ActionResult> LoginAsync(AuthAccount request)
+        public async Task<ActionResult<AuthSuccessResponse>> LoginAsync(AuthAccount request)
         {
             var result = await _authService.LogIn(request.UserName, request.Password);
 
@@ -36,6 +36,7 @@ namespace Art_Exchange_Token_System.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("Refresh")]
+        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> RefreshAsync(RefreshTokenRequest request)
         {
             var result = await _authService.RefreshTokenAsync(request.Token, request.RefreshToken);

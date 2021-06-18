@@ -8,11 +8,10 @@ namespace DATA.Functions
 {
     public class AdminFunctions:IAdminFunctions
     {
-        private readonly ArtExchangeContext _context;
+
         private readonly UserManager<IdentityUser> _userManager;
-        public AdminFunctions(ArtExchangeContext artExchangeContext, UserManager<IdentityUser> userManager)
+        public AdminFunctions(UserManager<IdentityUser> userManager)
         {
-            _context = artExchangeContext;
             _userManager = userManager;
         }
 
@@ -28,7 +27,7 @@ namespace DATA.Functions
 
         public async Task RevokeRole(IdentityUser identityUser, string role)
         {
-            var a = await _userManager.RemoveFromRoleAsync(identityUser, role);
+            await _userManager.RemoveFromRoleAsync(identityUser, role);
         }
 
     }

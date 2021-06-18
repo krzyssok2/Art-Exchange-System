@@ -244,7 +244,7 @@ namespace LOGIC.Services
             };
         }
 
-        private void DirectoryCreationCheck(string path)
+        private static void DirectoryCreationCheck(string path)
         {
             if (!Directory.Exists(path))
             {
@@ -254,12 +254,10 @@ namespace LOGIC.Services
 
         private static void SaveImageToDisk(string path, IFormFile file)
         {
-            using (FileStream fileStream = File.Create(path))
-            {
-                file.CopyTo(fileStream);
+            using FileStream fileStream = File.Create(path);
+            file.CopyTo(fileStream);
 
-                fileStream.Flush();
-            }
+            fileStream.Flush();
         }
     }
 }
