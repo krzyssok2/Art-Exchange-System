@@ -1,4 +1,5 @@
 ﻿using LOGIC.Models;
+using LOGIC.Models.ErrorHandlingModels;
 using LOGIC.Models.TransactionModels;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -11,10 +12,10 @@ namespace LOGIC.Interfaces
 {
     public interface IArtService
     {
-        public Task<PostArtTransactionResult> AddNewImageAsync(string email, string name, string description, string category, IFormFile file);
+        public Task<ServiceResponseModel<ArtInfoModel>> AddNewImageAsync(string email, string name, string description, string category, IFormFile file);
         public byte[] GetFileBytes(string fileName);
-        public Task<DeleteArtTransactionModel> DeleteArt(string email, string fileName);
-        public ArtListModel GetCreatedArt(string username);
-        public ArtListModel GetOwnedArt(string username);
+        public Task<ServiceResponseModel> DeleteArt(string email, string fileName);
+        public Task<ServiceResponseModel<ArtListModel>> GetOwnedArt(string username);
+        public Task<ServiceResponseModel<ArtListModel>> GetCreatedArt(string username);
     }
 }

@@ -3,6 +3,7 @@ using DATA.Functions;
 using DATA.Interfaces;
 using LOGIC.Interfaces;
 using LOGIC.Models;
+using LOGIC.Models.ErrorHandlingModels;
 using LOGIC.Models.TransactionModels;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -22,7 +23,7 @@ namespace LOGIC.Services
             _accountFunctions = accountFunctions;
             _artFunctions = artFunctions;
         }
-        public async Task<PostArtTransactionResult> AddNewImageAsync(string email, string name, string description, string category, IFormFile file)
+        public async Task<ServiceResponseModel<ArtInfoModel>> AddNewImageAsync(string email, string name, string description, string category, IFormFile file)
         {
 
             var user = await _accountFunctions.GetUserByEmail(email);
@@ -31,10 +32,17 @@ namespace LOGIC.Services
 
             if (!(file.Length > 0))
             {
-                return new PostArtTransactionResult
+                return new ServiceResponseModel<ArtInfoModel>
                 {
                     Success = false,
-                    Error = "No image provided"
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message=ErrorEnum.NoImageProvided
+                        }
+                    }
                 };
             }
 
@@ -52,10 +60,17 @@ namespace LOGIC.Services
 
             if (dbcategory == null)
             {
-                return new PostArtTransactionResult
+                return new ServiceResponseModel<ArtInfoModel>
                 {
                     Success = false,
-                    Error = "Such category doesn't exist"
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message=ErrorEnum.CategoryDoesntExist
+                        }
+                    }
                 };
             }
 
@@ -71,36 +86,26 @@ namespace LOGIC.Services
 
             var DbArt = _artFunctions.AddArtData(userdata, art);
 
-            return new PostArtTransactionResult
+            return new ServiceResponseModel<ArtInfoModel>
             {
-                Success = true
+                Success = true,
+                ResponseData= new ArtInfoModel
+                {
+                    Name=DbArt.Name,
+                    Category=DbArt.Catgegory.CategoryName,
+                    Description=DbArt.Description,
+                    FileName= DbArt.FileName
+                }
             };
-        }
-        private void DirectoryCreationCheck(string path)
-        {
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-        }
-
-        private void SaveImageToDisk(string path, IFormFile file)
-        {
-            using (FileStream fileStream = File.Create(path))
-            {
-                file.CopyTo(fileStream);
-
-                fileStream.Flush();
-            }
         }
 
         public byte[] GetFileBytes(string fileName)
         {
-            string path = System.IO.Directory.GetCurrentDirectory() + "\\uploads\\";
+            string path = Directory.GetCurrentDirectory() + "\\uploads\\";
             string filepath = path + fileName;
-            if (System.IO.File.Exists(filepath))
+            if (File.Exists(filepath))
             {
-                byte[] b = System.IO.File.ReadAllBytes(filepath);
+                byte[] b = File.ReadAllBytes(filepath);
 
                 string extension = fileName[(fileName.IndexOf('.') + 1)..];
 
@@ -109,37 +114,51 @@ namespace LOGIC.Services
             else return null;
         }
 
-        public async Task<DeleteArtTransactionModel> DeleteArt(string email,string fileName)
+        public async Task<ServiceResponseModel> DeleteArt(string email, string fileName)
         {
             var user = await _accountFunctions.GetUserByEmail(email);
 
-            var image =  _artFunctions.GetArtDataByName(fileName);
+            var image = _artFunctions.GetArtDataByName(fileName);
 
-            if (image == null) return new DeleteArtTransactionModel
+            if (image == null) return new ServiceResponseModel
             {
                 Success = false,
-                Error = "image not found"
+                Errors = new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message= ErrorEnum.NotFound
+                    }
+                }
             };
 
             var permission = await _artFunctions.IsUserPermited(fileName, user, image);
 
-            if(!permission) return new DeleteArtTransactionModel
+            if (!permission) return new ServiceResponseModel
             {
                 Success = false,
-                Error = "Not permitted"
+                Errors = new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message= ErrorEnum.NotPermitted
+                    }
+                }
             };
 
             File.Delete(Directory.GetCurrentDirectory() + "\\uploads\\" + fileName);
 
-             await _artFunctions.RemoveArtData(image);
+            await _artFunctions.RemoveArtData(image);
 
-            return new DeleteArtTransactionModel
+            return new ServiceResponseModel
             {
-                Success = true
+                Success = false,
             };
         }
 
-        public ArtListModel GetOwnedArt(string username)
+        public async Task<ServiceResponseModel<ArtListModel>> GetOwnedArt(string username)
         {
             var art = _artFunctions.GetOwnedArtByUserName(username);
 
@@ -161,10 +180,14 @@ namespace LOGIC.Services
                 ArtList = owned
             };
 
-            return ownedList;
+            return new ServiceResponseModel<ArtListModel>
+            {
+                Success = true,
+                ResponseData = ownedList
+            };
         }
 
-        public ArtListModel GetCreatedArt(string username)
+        public async Task<ServiceResponseModel<ArtListModel>> GetCreatedArt(string username)
         {
             var art = _artFunctions.GetCreatedArtByUserName(username);
 
@@ -186,7 +209,29 @@ namespace LOGIC.Services
                 ArtList = owned
             };
 
-            return ownedList;
+            return new ServiceResponseModel<ArtListModel>
+            {
+                Success = true,
+                ResponseData = ownedList
+            };
+        }
+
+        private void DirectoryCreationCheck(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+        }
+
+        private void SaveImageToDisk(string path, IFormFile file)
+        {
+            using (FileStream fileStream = File.Create(path))
+            {
+                file.CopyTo(fileStream);
+
+                fileStream.Flush();
+            }
         }
     }
 }

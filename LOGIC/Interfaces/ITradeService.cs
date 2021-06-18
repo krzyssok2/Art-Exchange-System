@@ -1,4 +1,5 @@
 ﻿using LOGIC.Models;
+using LOGIC.Models.ErrorHandlingModels;
 using LOGIC.Models.TransactionModels;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,10 @@ namespace LOGIC.Interfaces
 {
     public interface ITradeService
     {
-        public AllOnGoingTradesModel GetAllUserTradesByEmail(string email);
-        public Task<ErrorHandlingModel> DeleteTradeByIdAsync(string email, long id);
-        public GetTradeTransactionModel GetTradeInfoById(string email, long id);
-        public Task<ErrorHandlingModel> ChangeTradeStatusAsync(string email, long id, TradeStatus tradeStatus);
-        public Task<PostArtTransactionResult> PostNewTradeAsync(string email, TradeCreationModel tradeCreationModel);
+        public Task<ServiceResponseModel<AllOnGoingTradesModel>> GetAllUserTradesByEmail(string email);
+        public Task<ServiceResponseModel> DeleteTradeByIdAsync(string email, long id);
+        public Task<ServiceResponseModel<GetTradeInfoModel>> GetTradeInfoById(string email, long id);
+        public Task<ServiceResponseModel> ChangeTradeStatusAsync(string email, long id, TradeStatus tradeStatus);
+        public Task<ServiceResponseModel<GetTradeInfoModel>> PostNewTradeAsync(string email, TradeCreationModel tradeCreationModel);
     }
 }

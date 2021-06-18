@@ -28,9 +28,9 @@ namespace Art_Exchange_Token_System.Controllers
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
 
-            var result = _tradeService.GetAllUserTradesByEmail(email);
+            var result = await _tradeService.GetAllUserTradesByEmail(email);
 
-            return Ok(result);
+            return Ok(result.ResponseData);
         }
 
         [HttpPost]
@@ -38,11 +38,11 @@ namespace Art_Exchange_Token_System.Controllers
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
 
-            var answer = await _tradeService.PostNewTradeAsync(email, tradeCreationModel);
+            var result = await _tradeService.PostNewTradeAsync(email, tradeCreationModel);
 
-            if (!answer.Success) return BadRequest(answer.Error);
+            if (!result.Success) return BadRequest(result.Errors);
 
-            return Ok();
+            return Ok(result.ResponseData);
         }
 
         [HttpGet("{id}")]
@@ -50,14 +50,11 @@ namespace Art_Exchange_Token_System.Controllers
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
 
-            var answer = _tradeService.GetTradeInfoById(email, id);
+            var result = await _tradeService.GetTradeInfoById(email, id);
 
-            if(!answer.ErrorHandling.Success)
-            {
-                return BadRequest(answer.ErrorHandling.Error);
-            };
+            if (!result.Success) return BadRequest(result.Errors);
 
-            return answer.TradeInfo;
+            return Ok(result.ResponseData);
         }
 
         [HttpDelete("{id}")]
@@ -65,9 +62,9 @@ namespace Art_Exchange_Token_System.Controllers
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
 
-            var answer = await _tradeService.DeleteTradeByIdAsync(email, id);
+            var result = await _tradeService.DeleteTradeByIdAsync(email, id);
 
-            if (!answer.Success) return BadRequest(answer.Error);
+            if (!result.Success) return BadRequest(result.Errors);
 
             return Ok();
         }
@@ -79,7 +76,7 @@ namespace Art_Exchange_Token_System.Controllers
 
             var result = await _tradeService.ChangeTradeStatusAsync(email, id, tradeStatus);
 
-            if (!result.Success) return BadRequest(result.Error);
+            if (!result.Success) return BadRequest(result.Errors);
 
             return Ok();
 

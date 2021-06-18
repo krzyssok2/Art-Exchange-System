@@ -16,6 +16,7 @@ using DATA.Functions;
 using LOGIC.Models.TransactionModels;
 using static DATA.Enums.TradeTransactionStatusEnum;
 using DATA.Interfaces;
+using LOGIC.Models.ErrorHandlingModels;
 
 namespace LOGIC.Services
 {
@@ -29,15 +30,19 @@ namespace LOGIC.Services
             _tradeFunctions = tradeFunctions;
         }
 
-        public AllOnGoingTradesModel GetAllUserTradesByEmail(string email)
+        public async Task<ServiceResponseModel<AllOnGoingTradesModel>> GetAllUserTradesByEmail(string email)
         {
             var userData = _tradeFunctions.GetUserDataDetailedArtOffers(email);
 
             var trades = userData.OngoingTrades;
 
-            if (trades == null) return new AllOnGoingTradesModel
+            if (trades == null) return new ServiceResponseModel<AllOnGoingTradesModel>
             {
-                OnGoingTrades = new List<OnGoingTradeModel>()
+                Success=true,
+                ResponseData = new AllOnGoingTradesModel()
+                {
+                    OnGoingTrades= new List<OnGoingTradeModel>()
+                }
             };
 
             var requestAnswer = new AllOnGoingTradesModel
@@ -60,10 +65,14 @@ namespace LOGIC.Services
             };
 
 
-            return requestAnswer;
+            return new ServiceResponseModel<AllOnGoingTradesModel>
+            {
+                Success=true,
+                ResponseData=requestAnswer
+            };
         }
 
-        public async Task<ErrorHandlingModel> DeleteTradeByIdAsync(string email,long id)
+        public async Task<ServiceResponseModel> DeleteTradeByIdAsync(string email,long id)
         {
             var user = _accountFunctions.GetUserByEmail(email).Result;
 
@@ -71,10 +80,17 @@ namespace LOGIC.Services
 
             var pendingArtTrade =  _tradeFunctions.GetPendingArtTradeById(id);
 
-            if (pendingArtTrade == null) return new ErrorHandlingModel
+            if (pendingArtTrade == null) return new ServiceResponseModel
             {
                 Success = false,
-                Error = "Not found"
+                Errors= new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message=ErrorEnum.NotFound
+                    }
+                }
             };
 
 
@@ -88,32 +104,51 @@ namespace LOGIC.Services
                 }
             }
 
-            if (!found) return new ErrorHandlingModel
+            if (!found) return new  ServiceResponseModel
             {
                 Success = false,
-                Error = "Not permission"
+                Errors = new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message=ErrorEnum.NotPermitted
+                    }
+                }
             };
 
             await _tradeFunctions.DeleteTrade(pendingArtTrade);
 
-            return new ErrorHandlingModel
+            return new ServiceResponseModel
             {
-                Success = true
+                Success = true,
+                Errors = new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message=ErrorEnum.NotPermitted
+                    }
+                }
             };
         }
 
-        public GetTradeTransactionModel GetTradeInfoById(string email, long id)
+        public async Task<ServiceResponseModel<GetTradeInfoModel>> GetTradeInfoById(string email, long id)
         {
-            var user = _accountFunctions.GetUserByEmail(email);
+            var user = await _accountFunctions.GetUserByEmail(email);
 
             var trade = _tradeFunctions.GetPendingArtTradeById(id);
 
-            if (trade == null) return new GetTradeTransactionModel
+            if (trade == null) return new ServiceResponseModel<GetTradeInfoModel>
             {
-                ErrorHandling = new ErrorHandlingModel
+                Success=false,
+                Errors = new List<Error>
                 {
-                    Success = false,
-                    Error = "NotFound"
+                    new Error
+                    {
+                        Code=400,
+                        Message= ErrorEnum.NotFound
+                    }
                 }
             };
 
@@ -134,24 +169,28 @@ namespace LOGIC.Services
                 }).ToList()
             };
 
-            return new GetTradeTransactionModel
+            return new ServiceResponseModel<GetTradeInfoModel>
             {
-                ErrorHandling = new ErrorHandlingModel
-                {
-                    Success = true
-                },
-                TradeInfo= answer
+                Success=true,
+                ResponseData=answer
             };
         }
 
-        public async Task<ErrorHandlingModel> ChangeTradeStatusAsync(string email,long id, TradeStatus tradeStatus)
+        public async Task<ServiceResponseModel> ChangeTradeStatusAsync(string email,long id, TradeStatus tradeStatus)
         {
             var trade = _tradeFunctions.GetPendingArtTradeById(id);
 
-            if (trade == null) return new ErrorHandlingModel
-            {
-                Error = "not found",
-                Success = false
+            if (trade == null) return new ServiceResponseModel
+            {               
+                Success = false,
+                Errors= new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message=ErrorEnum.NotFound
+                    }
+                }
             };
 
             var user = _accountFunctions.GetUserByEmail(email).Result;
@@ -160,13 +199,20 @@ namespace LOGIC.Services
 
             var offer = trade.UserOffers.First(i => i.User.DisplayName == userData.DisplayName);
 
-            if (offer == null) return new ErrorHandlingModel
+            if (offer == null) return new ServiceResponseModel
             {
                 Success = false,
-                Error = "Not found"
+                Errors = new List<Error>
+                {
+                    new Error
+                    {
+                        Code=400,
+                        Message=ErrorEnum.NotFound
+                    }
+                }
             };
 
-            if (offer.TradeStatus == tradeStatus) return new ErrorHandlingModel
+            if (offer.TradeStatus == tradeStatus) return new ServiceResponseModel
             {
                 Success = true,
             };
@@ -181,7 +227,7 @@ namespace LOGIC.Services
 
             if (!(offer.TradeStatus == TradeStatus.OfferAccepted && offer2.TradeStatus == TradeStatus.OfferAccepted))
             {
-                return new ErrorHandlingModel
+                return new ServiceResponseModel
                 {
                     Success = true
                 };
@@ -189,13 +235,13 @@ namespace LOGIC.Services
 
             await _tradeFunctions.EndTrade(offer, offer2, trade);
 
-            return new ErrorHandlingModel
+            return new ServiceResponseModel
             {
                 Success = true
             };
         }
 
-        public async Task<PostArtTransactionResult> PostNewTradeAsync(string email,TradeCreationModel tradeCreationModel)
+        public async Task<ServiceResponseModel<GetTradeInfoModel>> PostNewTradeAsync(string email,TradeCreationModel tradeCreationModel)
         {
             var userData = _accountFunctions.GetUserDataByEmail(email);
 
@@ -205,19 +251,26 @@ namespace LOGIC.Services
 
             if (trade == null)
             {
-                return new PostArtTransactionResult
+                return new ServiceResponseModel<GetTradeInfoModel>
                 {
                     Success = false,
-                    Error = "failed to create"
+                    Errors = new List<Error>
+                    {
+                        new Error
+                        {
+                            Code=400,
+                            Message= ErrorEnum.FailedToCreate
+                        }
+                    }
                 };
             }
 
             await _tradeFunctions.CreateArtTrade(trade);
 
-            return new PostArtTransactionResult
+            return new ServiceResponseModel<GetTradeInfoModel>
             {
                 Success = true,
-                ArtData = new GetTradeInfoModel
+                ResponseData = new GetTradeInfoModel
                 {
                     Id = trade.Id,
                     UserTrades = trade.UserOffers.Select(i => new UserTradeOfferModel

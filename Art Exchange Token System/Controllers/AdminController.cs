@@ -26,28 +26,34 @@ namespace Art_Exchange_Token_System.Controllers
         }
 
         [HttpPost("GrantRole")]
-        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> GrantRole(GrantRoleModel request)
         {
-            await _adminService.GrantRole(request.Mail, request.Role);
+            var result = await _adminService.GrantRole(request.Mail, request.Role);
+
+            if (!result.Success) return BadRequest(result.Errors);
 
             return Ok();
         }
 
         [HttpGet("UserRoles/{mail}")]
-        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
+        [ProducesResponseType(typeof(UserRolesModel), 200)]
         public async Task<ActionResult> GetUserRoles(string email)
         {
             var result = await _adminService.GetUserRoles(email);
 
-            return Ok(result);
+            if (!result.Success) return BadRequest(result.Errors);
+
+            return Ok(result.ResponseData);
         }
 
         [HttpPatch("RevokeRole")]
-        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> RevokeRole(RevokeRoleModel request)
         {
-            await _adminService.RevokeRole(request.Mail, request.Role);
+            var result = await _adminService.RevokeUserRole(request.Mail, request.Role);
+
+            if (!result.Success) return BadRequest(result.Errors);
+
+            return Ok();
         }
     }
 }
