@@ -1,7 +1,5 @@
-﻿using Art_Exchange_Token_System.Entities;
-using Art_Exchange_Token_System.Models;
+﻿using Art_Exchange_Token_System.Models;
 using Art_Exchange_Token_System.Models.RequestModels;
-using Art_Exchange_Token_System.Services;
 using LOGIC.Interfaces;
 using LOGIC.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,61 +29,13 @@ namespace Art_Exchange_Token_System.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<ArtDataCreationModel>> PostArt([FromForm] PostArtModel request)
         {
-            var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
+            var userEmail = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
+            var artDataCreationModel = await _artService.AddNewImageAsync(userEmail, request.Name, request.Description, request.Category, request.File);
 
-            var user = await _userManager.FindByEmailAsync(email);
+            if (!artDataCreationModel.Success) return BadRequest(artDataCreationModel.Error);
 
-            var userdata = _context.UserData
-                .First(i => i.IdentityUser.Id == user.Id);
-
-            if (!(request.File.Length > 0)) return BadRequest("No File");
-
-            string path = Directory.GetCurrentDirectory() + "\\uploads\\";
-
-            _artService.DirectoryCreationCheck(path);
-
-            string guid = Guid.NewGuid().ToString() + "-" + Guid.NewGuid().ToString();
-
-            string extension = request.File.FileName[(request.File.FileName.LastIndexOf('.') + 1)..];
-
-            _artService.SaveImageToDisk(path + guid + "." + extension, request.File);
-
-            var category = _context.ArtCategories.FirstOrDefault(i => i.CategoryName == request.Category);
-
-            if (category == null)
-            {
-                category = _context.ArtCategories.First(i => i.CategoryName == "Default");
-            }
-
-            var art = new ArtData
-            {
-                Catgegory = category,
-                CurrentOwner = userdata,
-                Description = request.Description,
-                FileName = guid + "." + extension,
-                Name = request.Name,
-                OriginalCreator = userdata
-            };
-
-            _context.ArtData.Add(art);
-            userdata.OwnedArt.Add(art);
-
-            _context.SaveChanges();
-
-            var artDB = _context.ArtData.Include(i => i.Catgegory).First(i => i.FileName == guid + "." + extension);
-
-            return Ok(new ArtDataCreationModel
-            {
-                Catgegory = new ArtCategoryModel
-                {
-                    Id = artDB.Catgegory.Id,
-                    Name = artDB.Catgegory.CategoryName
-                },
-                Description = artDB.Description,
-                FileName = guid + "." + extension,
-                Id = artDB.Id,
-                Name = artDB.Name
-            });
+            return Ok(artDataCreationModel.ArtData);
+            
         }
 
         [HttpDelete("{fileName}")]
@@ -95,91 +45,43 @@ namespace Art_Exchange_Token_System.Controllers
         {
             var email = User.Claims.Single(a => a.Type == ClaimTypes.Email).Value;
 
-            var user = await _userManager.FindByEmailAsync(email);
+            var result = await _artService.DeleteArt(email, fileName);
 
-            var image = _context.ArtData
-                .Include(i => i.CurrentOwner)
-                .FirstOrDefault(i => i.FileName == fileName);
+            if (!result.Success) return BadRequest(result.Error);
 
-            if (image == null) return BadRequest("Not found");
-
-            if (!(await _userManager.IsInRoleAsync(user, "admin") 
-                || image.CurrentOwner.DisplayName == user.UserName))
-                return BadRequest("Permission denied");
-
-            System.IO.File.Delete(Directory.GetCurrentDirectory() + "\\uploads\\" + fileName);
-
-            _context.ArtData.Remove(image);
-            _context.SaveChanges();            
-            
-            return Ok("Deleted");
+            return Ok();
 
         }
 
         [HttpGet("{fileName}")]
         public async Task<ActionResult> GetPicture(string fileName)
         {
-            string path = System.IO.Directory.GetCurrentDirectory() + "\\uploads\\";
-            string filepath = path + fileName;
+            var b = _artService.GetFileBytes(fileName);
 
-            if (System.IO.File.Exists(filepath))
+            if(b==null)
             {
-                byte[] b = System.IO.File.ReadAllBytes(filepath);
-
-                string extension = fileName[(fileName.IndexOf('.') + 1)..];
-
-                return File(b, "image/" + extension);
+                return BadRequest("NotFound");
             }
 
-            return BadRequest("Not Found");
+            string extension = fileName[(fileName.IndexOf('.') + 1)..];
+
+            return File(b, "image/" + extension);
         }
 
         [HttpGet("owned/{username}")]
-        public async Task<ActionResult<OwnedArtDataModel>> GetOwnedArt(string username)
+        public async Task<ActionResult<ArtListModel>> GetOwnedArt(string username)
         {
-            var art = _context.ArtData
-                .Include(i => i.CurrentOwner)
-                .Include(i => i.Catgegory)
-                .Where(i => i.CurrentOwner.DisplayName == username);
+            var art = _artService.GetOwnedArt(username);
 
-            var owned = art.Select(i => new OwnedArtDataModel
-            {
-                Id = i.Id,
-                Name = i.Name,
-                FileName = i.FileName,
-                Description = i.Description,
-                Catgegory = new ArtCategoryModel
-                {
-                    Id = i.Catgegory.Id,
-                    Name = i.Catgegory.CategoryName
-                }
-            });
-
-            return Ok(owned);
+            return Ok(art);
         }
 
         [HttpGet("created/{username}")]
-        public async Task<ActionResult<OwnedArtDataModel>> GetCreatedArt(string username)
+        public async Task<ActionResult<ArtListModel>> GetCreatedArt(string username)
         {
-            var art = _context.ArtData
-                .Include(i => i.OriginalCreator)
-                .Include(i => i.Catgegory)
-                .Where(i => i.OriginalCreator.DisplayName == username);
+            var art = _artService.GetCreatedArt(username);
 
-            var owned = art.Select(i => new OwnedArtDataModel
-            {
-                Id = i.Id,
-                Name = i.Name,
-                FileName = i.FileName,
-                Description = i.Description,
-                Catgegory = new ArtCategoryModel
-                {
-                    Id = i.Catgegory.Id,
-                    Name = i.Catgegory.CategoryName
-                }
-            });
-
-            return Ok(owned);
+            return Ok(art);
         }
     }
 }

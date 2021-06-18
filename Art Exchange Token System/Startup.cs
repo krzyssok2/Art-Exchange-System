@@ -102,6 +102,8 @@ namespace Art_Exchange_Token_System
             services.AddScoped<ITradeService, TradeService>();
             services.AddScoped<IAdminService, AdminService>();
             services.AddTransient<AccountFunctions>();
+            services.AddTransient<ArtFunctions>();
+            services.AddTransient<TradeFunctions>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

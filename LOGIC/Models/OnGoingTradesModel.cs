@@ -6,6 +6,13 @@ using static DATA.Enums.TradeTransactionStatusEnum;
 
 namespace LOGIC.Models
 {
+    public class GetAllTradesTransaction
+    {
+        public bool Success { get; set; }
+        public string Error { get; set; }
+        public AllOnGoingTradesModel AllOngoingTrades { get; set; }
+    }
+
     public class AllOnGoingTradesModel
     {
         public List<OnGoingTradeModel> OnGoingTrades { get; set; }

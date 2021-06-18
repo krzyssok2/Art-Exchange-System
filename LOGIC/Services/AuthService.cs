@@ -1,5 +1,6 @@
 ﻿using DATA.AppConfiguration;
 using DATA.Entities;
+using DATA.Functions;
 using LOGIC.Interfaces;
 using LOGIC.Models;
 using LOGIC.Models.TransactionModels;
@@ -22,11 +23,12 @@ namespace LOGIC.Services
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DATA.Functions.AccountFunctions _accountFunctions;
-        public AuthService(JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, ArtExchangeContext artExchangeContext, UserManager<IdentityUser> userManager)
+        public AuthService(JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, ArtExchangeContext artExchangeContext, UserManager<IdentityUser> userManager,
+            AccountFunctions accountFunctions)
         {
             _jwtSettings = jwtSettings;
             _tokenValidationParameters = tokenValidationParameters;
-            _accountFunctions = new DATA.Functions.AccountFunctions(artExchangeContext, userManager);
+            _accountFunctions = accountFunctions;
         }
         public async Task<AuthenticationResult> LogIn(string userName, string password)
         {

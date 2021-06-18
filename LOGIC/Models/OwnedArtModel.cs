@@ -5,7 +5,11 @@ using System.Threading.Tasks;
 
 namespace LOGIC.Models
 {
-    public class OwnedArtDataModel
+    public class ArtListModel
+    {
+        public List<ArtDataModel> ArtList { get; set; }
+    }
+    public class ArtDataModel
     {
         public long Id { get; set; }
         public string Name { get; set; }
@@ -13,7 +17,7 @@ namespace LOGIC.Models
         public ArtCategoryModel Catgegory { get; set; }
         public string FileName { get; set; }
     }
-    public class OwnedArtCategoryModel
+    public class ArtCategoryModel
     {
         public long Id { get; set; }
         public string Name { get; set; }

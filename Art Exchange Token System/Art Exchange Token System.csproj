@@ -14,8 +14,6 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\AdminController.cs" />
-    <Compile Remove="Controllers\ArtController.cs" />
-    <Compile Remove="Controllers\TradeController.cs" />
   </ItemGroup>
 
   <ItemGroup>

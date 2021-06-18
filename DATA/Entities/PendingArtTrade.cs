@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 
 namespace DATA.Entities
 {
+
+
     public class PendingArtTrade
     {
         public long Id { get; set; }

@@ -99,5 +99,25 @@ namespace DATA.Functions
 
             _context.SaveChanges();
         }
+
+        public async Task<UserData> GetUserDataByUser(IdentityUser identityUser)
+        {
+            var userdata = _context.UserData
+                .First(i => i.IdentityUser.Id == identityUser.Id);
+
+            return userdata;
+        }
+
+        public UserData GetUserDataByUserName(string userName)
+        {
+            return _context.UserData
+                .Include(i => i.IdentityUser)
+                .First(i => i.DisplayName == userName);
+        }
+
+        public UserData GetUserDataByEmail(string email)
+        {
+            return _context.UserData.First(i => i.IdentityUser.Email == email);
+        }
     }
 }
