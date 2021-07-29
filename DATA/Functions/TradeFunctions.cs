@@ -12,7 +12,7 @@ namespace DATA.Functions
     public class TradeFunctions :ITradeFunctions
     {
         private readonly ArtExchangeContext _context;
-        public TradeFunctions(ArtExchangeContext artExchangeContext, UserManager<IdentityUser> userManager)
+        public TradeFunctions(ArtExchangeContext artExchangeContext)
         {
             _context = artExchangeContext;
         }

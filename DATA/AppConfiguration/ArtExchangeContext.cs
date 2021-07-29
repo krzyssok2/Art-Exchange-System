@@ -9,7 +9,7 @@ namespace DATA.AppConfiguration
     public class ArtExchangeContext : IdentityDbContext<IdentityUser>
     {
 
-        public static OptionsBuild Options = new OptionsBuild();
+        public static OptionsBuild Options = new();
         public class OptionsBuild
         {
             public OptionsBuild()
