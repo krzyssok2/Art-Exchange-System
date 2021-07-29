@@ -1,9 +1,4 @@
-﻿using Art_Exchange_Token_System.Entities;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Art_Exchange_Token_System.Models.RequestModels
 {

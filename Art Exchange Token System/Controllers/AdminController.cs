@@ -1,13 +1,9 @@
-﻿using Art_Exchange_Token_System.Models;
-using Art_Exchange_Token_System.Models.RequestModels;
-using Art_Exchange_Token_System.Services;
+﻿using Art_Exchange_Token_System.Models.RequestModels;
+using LOGIC.Interfaces;
+using LOGIC.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 
@@ -18,70 +14,41 @@ namespace Art_Exchange_Token_System.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AdminController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        public AdminController(UserManager<IdentityUser> identityService)
+        private readonly IAdminService _adminService;
+        public AdminController(IAdminService authService)
         {
-            _userManager = identityService;
+            _adminService = authService;
         }
 
         [HttpPost("GrantRole")]
-        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> GrantRole(GrantRoleModel request)
         {
-            var user = _userManager.FindByEmailAsync(request.Mail);
+            var result = await _adminService.GrantRole(request.Mail, request.Role);
 
-            var roleResponse = await _userManager.AddToRoleAsync(user.Result, request.Role);
+            if (!result.Success) return BadRequest(result.Errors);
 
-            if (!roleResponse.Succeeded)
-            {
-                return BadRequest(new 
-                {
-                    Errors = roleResponse.Errors
-                });
-            }
-            return Ok(user.Result);
+            return Ok();
         }
 
         [HttpGet("UserRoles/{mail}")]
-        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
-        public async Task<ActionResult> GetUserRoles(string mail)
+        [ProducesResponseType(typeof(UserRolesModel), 200)]
+        public async Task<ActionResult> GetUserRoles(string email)
         {
-            var user = await _userManager.FindByEmailAsync(mail);
+            var result = await _adminService.GetUserRoles(email);
 
-            if (user == null) return NotFound();
+            if (!result.Success) return BadRequest(result.Errors);
 
-
-            var roleResponse = (await _userManager.GetRolesAsync(user)).ToList();
-
-            return Ok(new UserRolesModel
-            {
-                UserMail = mail,
-                Roles = roleResponse
-            });        
+            return Ok(result.ResponseData);
         }
 
         [HttpPatch("RevokeRole")]
-        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         public async Task<ActionResult> RevokeRole(RevokeRoleModel request)
         {
-            var user = await _userManager.FindByEmailAsync(request.Mail);
+            var result = await _adminService.RevokeUserRole(request.Mail, request.Role);
 
-            var revokeRequest = await _userManager.RemoveFromRoleAsync(user, request.Role);
+            if (!result.Success) return BadRequest(result.Errors);
 
-            if (!revokeRequest.Succeeded)
-            {                
-                return BadRequest(new
-                {
-                    Errors = revokeRequest.Errors
-                });
-            }
-
-            var roleResponse = (await _userManager.GetRolesAsync(user)).ToList();
-            return Ok(new UserRolesModel
-            {
-                UserMail = request.Mail,
-                Roles = roleResponse
-            });
+            return Ok();
         }
     }
 }

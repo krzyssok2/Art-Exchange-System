@@ -1,11 +1,8 @@
 using Art_Exchange_Token_System.MiddleWares.ExceptionHandler;
-using Art_Exchange_Token_System.Options;
-using Art_Exchange_Token_System.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,9 +10,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
-using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Newtonsoft.Json.Converters;
+using LOGIC.Options;
+using LOGIC.Interfaces;
+using LOGIC.Services;
+using DATA.AppConfiguration;
+using Microsoft.EntityFrameworkCore;
+using DATA.Functions;
+using DATA.Interfaces;
 
 namespace Art_Exchange_Token_System
 {
@@ -33,6 +35,7 @@ namespace Art_Exchange_Token_System
         {
             services.AddDbContext<ArtExchangeContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ArtExchangeAPI")));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ArtExchangeContext>().AddDefaultTokenProviders();
+
             services.AddControllers()
                 .AddNewtonsoftJson(options =>
                 {
@@ -53,10 +56,6 @@ namespace Art_Exchange_Token_System
             };
 
             services.AddSingleton(tokenValidationParameters);
-
-            services.AddScoped<AuthServices>();
-            services.AddScoped<ArtService>();
-            services.AddScoped<TradeService>();
 
             services.AddAuthentication(x =>
             {
@@ -99,6 +98,15 @@ namespace Art_Exchange_Token_System
                 x.OperationFilter<SecurityRequirementsOperationFilter>(true, scheme.Reference.Id);
             }).AddSwaggerGenNewtonsoftSupport();
 
+            services.AddScoped<IArtService, ArtService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ITradeService, TradeService>();
+            services.AddScoped<IAdminService, AdminService>();
+
+            services.AddScoped<IAccountFunctions,AccountFunctions>();
+            services.AddScoped<IArtFunctions,ArtFunctions>();
+            services.AddScoped<ITradeFunctions,TradeFunctions>();
+            services.AddScoped<IAdminFunctions, AdminFunctions>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
